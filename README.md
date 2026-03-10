@@ -1,11 +1,49 @@
 # LedgerAxis
 
-Multi-tenant internal SaaS application for managing companies, directors, and tenant-scoped analytics.
+LedgerAxis is a multi-tenant internal SaaS application for searching, reviewing, and managing company records and directors with tenant-scoped analytics.
+
+## What Users Can Do Today
+
+- Sign in with tenant-scoped access using JWT authentication
+- Search companies by name or registration number
+- Browse paginated company records within the current tenant
+- Open a company profile to view registration, industry, revenue, employee count, and directors
+- View analytics for industry distribution and top companies by revenue
+- Switch between light and dark theme
+- Switch between English and Bahasa Melayu in the frontend
+- Explore the backend API through Swagger/OpenAPI docs
+
+## Current User-Facing Data
+
+The platform currently exposes these data points to users:
+
+- Company name
+- Registration number
+- Industry
+- Revenue
+- Employee count
+- Director full name
+- Director nationality
+- Director birth year
+- Tenant-scoped industry summaries
+- Tenant-scoped top company rankings by revenue
+- Director counts per company in analytics-backed queries
+
+## Current Visualizations
+
+The current dashboard includes:
+
+- Industry distribution bar chart
+- Revenue mix donut chart for top companies
+- KPI summary cards for industries covered, top company revenue, and top company director count
+- Analytics tables for industry summary and top companies by revenue
+
+These sections are useful as a baseline for product review, especially if you want reviewers to propose more advanced business-facing analytics later.
 
 ## Stack
 
 - Backend: Node.js, Express, MySQL, JWT, bcrypt, Joi
-- Frontend: Vue 3, Vue Router, Pinia, Axios, Vite
+- Frontend: Vue 3, Vue Router, Pinia, Axios, Vue I18n, ApexCharts, Vite
 - Architecture: `routes -> controllers -> services -> repositories`
 
 ## Structure
@@ -28,15 +66,16 @@ frontend/
   src/
     api/
     components/
+    i18n/
     pages/
     router/
     stores/
 ```
 
-## Backend setup
+## Backend Setup
 
 1. Copy `backend/.env.example` to `backend/.env`.
-2. Create the database schema by running the SQL in `backend/src/db/schema.sql`.
+2. Ensure MySQL is running and the configured DB user has permission to create databases and tables.
 3. Install dependencies:
 
 ```bash
@@ -49,6 +88,8 @@ npm install
 ```bash
 npm run seed
 ```
+
+The seed script now bootstraps the database and schema automatically from `backend/src/db/schema.sql`, so you do not need to run the schema manually in a normal local setup.
 
 5. Start the API:
 
@@ -69,7 +110,7 @@ Sample seeded login:
 - Email: `seed.admin1@example.com`
 - Password: `Password123!`
 
-## Frontend setup
+## Frontend Setup
 
 1. Copy `frontend/.env.example` to `frontend/.env`.
 2. Install dependencies:
@@ -107,7 +148,7 @@ All company and analytics endpoints require JWT auth and apply tenant filtering.
 
 OpenAPI documentation is served at `/api/docs` and the raw spec at `/api/docs.json`.
 
-## SQL coverage
+## SQL Coverage
 
 Repository-layer queries include:
 
