@@ -40,6 +40,10 @@ The current dashboard includes:
 
 These sections are useful as a baseline for product review, especially if you want reviewers to propose more advanced business-facing analytics later.
 
+## Product Planning
+
+The prioritized product roadmap is in [PRODUCT_ROADMAP.md](PRODUCT_ROADMAP.md).
+
 ## Stack
 
 - Backend: Node.js, Express, MySQL, JWT, bcrypt, Joi
@@ -162,3 +166,4 @@ Repository-layer queries include:
 - `HAVING` clause examples
 
 Reference SQL examples are in `backend/src/db/complex-queries.sql`.
+
