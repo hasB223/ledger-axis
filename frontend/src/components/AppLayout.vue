@@ -1,11 +1,15 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/authStore';
+import ThemeToggle from './ThemeToggle.vue';
+import LanguageSwitcher from './LanguageSwitcher.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
-const tenantName = computed(() => authStore.user?.tenantName || 'Tenant');
+const { t } = useI18n();
+const tenantName = computed(() => authStore.user?.tenantName || t('common.tenant'));
 
 const logout = () => {
   authStore.logout();
@@ -18,16 +22,23 @@ const logout = () => {
     <div class="page-grid">
       <aside class="panel sidebar">
         <div>
-          <h1>LedgerAxis</h1>
-          <p class="muted">{{ tenantName }}</p>
+          <h1>{{ t('appName') }}</h1>
+          <p class="muted sidebar__tenant">{{ tenantName }}</p>
         </div>
+
+        <div class="sidebar__controls">
+          <ThemeToggle />
+          <LanguageSwitcher />
+        </div>
+
         <nav>
-          <router-link to="/companies">Company Search</router-link>
-          <router-link to="/analytics">Analytics Dashboard</router-link>
+          <router-link to="/companies">{{ t('nav.companies') }}</router-link>
+          <router-link to="/analytics">{{ t('nav.analytics') }}</router-link>
         </nav>
-        <div style="margin-top: auto;">
+
+        <div class="sidebar__footer">
           <p class="muted">{{ authStore.user?.fullName }}</p>
-          <button class="button-secondary" @click="logout">Logout</button>
+          <button class="button-secondary" @click="logout">{{ t('nav.logout') }}</button>
         </div>
       </aside>
       <main class="content">

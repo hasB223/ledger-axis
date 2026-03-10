@@ -1,10 +1,14 @@
 <script setup>
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/authStore';
+import ThemeToggle from '../components/ThemeToggle.vue';
+import LanguageSwitcher from '../components/LanguageSwitcher.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { t } = useI18n();
 
 const form = reactive({
   email: 'seed.admin1@example.com',
@@ -24,26 +28,31 @@ const submit = async () => {
 <template>
   <div class="auth-layout">
     <section class="panel auth-card">
-      <div class="card" style="padding: 0;">
-        <h2>Sign in</h2>
-        <p class="muted">Internal access for tenant-scoped company operations and analytics.</p>
+      <div class="auth-toolbar">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+      <div class="card auth-intro" style="padding: 0;">
+        <span class="eyebrow">{{ t('appName') }}</span>
+        <h2>{{ t('auth.title') }}</h2>
+        <p class="muted">{{ t('auth.subtitle') }}</p>
       </div>
 
       <form class="login-form" @submit.prevent="submit">
         <div v-if="authStore.error" class="error-banner">{{ authStore.error }}</div>
 
         <label class="field">
-          <span>Email</span>
+          <span>{{ t('auth.email') }}</span>
           <input v-model="form.email" type="email" autocomplete="username" required />
         </label>
 
         <label class="field">
-          <span>Password</span>
+          <span>{{ t('auth.password') }}</span>
           <input v-model="form.password" type="password" autocomplete="current-password" required />
         </label>
 
         <button class="button" :disabled="authStore.loading" type="submit">
-          {{ authStore.loading ? 'Signing in...' : 'Sign in' }}
+          {{ authStore.loading ? t('auth.submitting') : t('auth.submit') }}
         </button>
       </form>
     </section>

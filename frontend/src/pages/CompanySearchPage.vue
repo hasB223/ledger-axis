@@ -1,9 +1,13 @@
 <script setup>
-import { onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '../components/AppLayout.vue';
 import PaginationControls from '../components/PaginationControls.vue';
 import { fetchCompanies, searchCompanies } from '../api/companyApi';
+
+const { t, locale } = useI18n();
+const localeMap = { en: 'en-US', ms: 'ms-MY' };
 
 const state = reactive({
   query: '',
@@ -12,6 +16,17 @@ const state = reactive({
   loading: false,
   error: null
 });
+
+const numberFormatter = computed(
+  () => new Intl.NumberFormat(localeMap[locale.value] || 'en-US')
+);
+const currencyFormatter = computed(
+  () => new Intl.NumberFormat(localeMap[locale.value] || 'en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  })
+);
 
 const loadCompanies = async (page = 1) => {
   state.loading = true;
@@ -39,44 +54,46 @@ onMounted(() => {
   <AppLayout>
     <section class="panel page-header">
       <div>
-        <h2>Company Search</h2>
-        <p class="muted">Tenant-isolated records with registration, industry, and revenue visibility.</p>
+        <h2>{{ t('companies.title') }}</h2>
+        <p class="muted">{{ t('companies.subtitle') }}</p>
       </div>
-      <div class="toolbar">
-        <input v-model="state.query" placeholder="Search by company or registration number" />
-        <button class="button" @click="loadCompanies(1)">Search</button>
+      <div class="toolbar toolbar--search">
+        <input v-model="state.query" :placeholder="t('companies.searchPlaceholder')" @keyup.enter="loadCompanies(1)" />
+        <button class="button" @click="loadCompanies(1)">{{ t('common.search') }}</button>
       </div>
     </section>
 
     <section class="panel card">
       <div v-if="state.error" class="error-banner">{{ state.error }}</div>
-      <p class="muted">Total companies: {{ state.pagination.total }}</p>
+      <p class="muted">{{ t('companies.total', { count: numberFormatter.format(state.pagination.total) }) }}</p>
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Registration</th>
-            <th>Industry</th>
-            <th>Revenue</th>
-            <th>Employees</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="state.loading">
-            <td colspan="5">Loading companies...</td>
-          </tr>
-          <tr v-for="company in state.companies" :key="company.id">
-            <td>
-              <RouterLink :to="`/companies/${company.id}`">{{ company.name }}</RouterLink>
-            </td>
-            <td>{{ company.registrationNumber }}</td>
-            <td>{{ company.industry }}</td>
-            <td>${{ Number(company.revenue).toLocaleString() }}</td>
-            <td>{{ company.employeeCount.toLocaleString() }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-shell">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ t('companies.name') }}</th>
+              <th>{{ t('companies.registration') }}</th>
+              <th>{{ t('companies.industry') }}</th>
+              <th>{{ t('companies.revenue') }}</th>
+              <th>{{ t('companies.employees') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="state.loading">
+              <td colspan="5">{{ t('companies.loading') }}</td>
+            </tr>
+            <tr v-for="company in state.companies" :key="company.id">
+              <td>
+                <RouterLink :to="`/companies/${company.id}`">{{ company.name }}</RouterLink>
+              </td>
+              <td>{{ company.registrationNumber }}</td>
+              <td>{{ company.industry }}</td>
+              <td>{{ currencyFormatter.format(Number(company.revenue)) }}</td>
+              <td>{{ numberFormatter.format(company.employeeCount) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <PaginationControls
         :page="state.pagination.page"
