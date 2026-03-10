@@ -1,5 +1,8 @@
 import bcrypt from 'bcrypt';
+import fs from 'fs/promises';
+import path from 'path';
 import mysql from 'mysql2/promise';
+import { fileURLToPath } from 'url';
 import { env } from '../src/config/env.js';
 
 const tenantNames = [
@@ -59,7 +62,34 @@ const createRegistrationNumber = (index) => `REG-${String(index).padStart(5, '0'
 const createEmail = (fullName, index) =>
   `${fullName.toLowerCase().replace(/\s+/g, '.')}+${index}@example.com`;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const schemaPath = path.resolve(__dirname, '../src/db/schema.sql');
+
+const loadSchemaSql = async () => {
+  const rawSchema = await fs.readFile(schemaPath, 'utf8');
+
+  return rawSchema
+    .replace(/CREATE DATABASE IF NOT EXISTS\s+\w+;/i, `CREATE DATABASE IF NOT EXISTS ${env.db.database};`)
+    .replace(/USE\s+\w+;/i, `USE ${env.db.database};`);
+};
+
 const main = async () => {
+  const bootstrapConnection = await mysql.createConnection({
+    host: env.db.host,
+    port: env.db.port,
+    user: env.db.user,
+    password: env.db.password,
+    multipleStatements: true
+  });
+
+  try {
+    const schemaSql = await loadSchemaSql();
+    await bootstrapConnection.query(schemaSql);
+  } finally {
+    await bootstrapConnection.end();
+  }
+
   const connection = await mysql.createConnection({
     host: env.db.host,
     port: env.db.port,
@@ -164,6 +194,7 @@ const main = async () => {
     }
 
     console.log('Seed completed');
+    console.log(`Database bootstrapped: ${env.db.database}`);
     console.log('Sample login: seed.admin1@example.com / Password123!');
   } finally {
     await connection.end();
